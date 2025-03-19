@@ -1,0 +1,45 @@
+package br.com.improving.carrinho;
+
+import java.math.BigDecimal;
+import java.util.HashMap;
+import java.util.Map;
+
+/**
+ * Classe responsável pela criação e recuperação dos carrinhos de compras.
+ */
+public class CarrinhoComprasFactory {
+    
+    private final Map<String, CarrinhoCompras> carrinhos;
+    
+    public CarrinhoComprasFactory() {
+        this.carrinhos = new HashMap<>();
+    }
+    
+    /**
+     * Cria e retorna um carrinho de compras para o cliente.
+     * Se o cliente já possuir um carrinho, ele será retornado.
+     */
+    public CarrinhoCompras criar(String identificacaoCliente) {
+        return carrinhos.computeIfAbsent(identificacaoCliente, k -> new CarrinhoCompras());
+    }
+    
+    /**
+     * Calcula e retorna o valor médio dos carrinhos de compras existentes.
+     */
+    public BigDecimal getValorTicketMedio() {
+        if (carrinhos.isEmpty()) {
+            return BigDecimal.ZERO;
+        }
+        BigDecimal total = carrinhos.values().stream()
+                                   .map(CarrinhoCompras::getValorTotal)
+                                   .reduce(BigDecimal.ZERO, BigDecimal::add);
+        return total.divide(BigDecimal.valueOf(carrinhos.size()), 2, BigDecimal.ROUND_HALF_UP);
+    }
+    
+    /**
+     * Remove o carrinho de compras do cliente.
+     */
+    public boolean invalidar(String identificacaoCliente) {
+        return carrinhos.remove(identificacaoCliente) != null;
+    }
+}
